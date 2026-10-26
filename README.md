@@ -70,6 +70,73 @@ Or place inside your workspace's `.agent/skills/`.
 
 ---
 
+## 💬 How to Guide Claude (Prompts for Stop-Loss, Target & Execution)
+
+Once connected, you can interact with Claude in plain English or using slash commands. Here is the exact guide on how to guide Claude to calculate your **Stop-Loss (SL)**, **Target**, and **Risk/Reward**.
+
+### 🎯 The Quick Prompt (Get SL & Target Immediately)
+Paste this single prompt into Claude Desktop or Claude Code:
+
+> **"I am looking at RELIANCE.NS. It broke out at ₹2,950.00. The 15-minute opening range high was ₹2,940.00 and low was ₹2,910.00. Calculate my exact Stop-Loss (using ORB midpoint) and a 2R Target, and enforce the 15:15 IST square-off rule."**
+
+Claude will output:
+* **Entry:** ₹ 2,950.00
+* **Stop-Loss (SL):** ₹ 2,925.00 *(Midpoint between ₹2,940 and ₹2,910)*
+* **Risk per share:** ₹ 25.00
+* **Target (2R):** ₹ 3,000.00 *(Entry + 2 × Risk)*
+* **Reward per share:** ₹ 50.00
+* **Reward-to-Risk Ratio:** 2.0R
+* **Intraday Cutoff:** `15:15 IST` *(Mandatory exit to avoid broker penalty fees)*
+
+---
+
+### 🔄 The Complete Conversational Workflow
+
+#### 1. Scan for Today's Setups
+> *"Scan liquid NSE stocks for 15-minute Opening Range Breakouts (ORBs)."*  
+*(Or slash command: `/trader-scanner orb`)*
+
+#### 2. Confirm Entry
+> *"Check if RELIANCE.NS has closed above its opening range on a completed 5-minute candle."*  
+*(Or slash command: `/trader-entry check RELIANCE.NS`)*
+
+#### 3. Calculate Stop-Loss & Target
+> *"Plan the exit for RELIANCE.NS using the opening-range midpoint for stop-loss and a 2R profit target."*  
+*(Or slash command: `/trader-exit plan --stop or-mid --target 2R --write`)*
+
+#### 4. Test Probability in Time Machine
+> *"Replay this trade in the Time Machine 10,000 times from historical 5-minute bars and tell me the win/loss odds."*  
+*(Or slash command: `/trader-timemachine run`)*
+
+#### 5. Size Position to INR Budget
+> *"Size this trade for my ₹1,00,000 account with a max loss of ₹1,000 using 5x MIS leverage."*  
+*(Or slash command: `/trader-budget size --write`)*
+
+#### 6. Audit SEBI Statutory Charges & Circuit Limits
+> *"Check this order against my risk rules, ensure it's not near an Upper Circuit, and show net profit after deducting STT, GST, and brokerage."*  
+*(Or slash command: `/trader-risk check`)*
+
+#### 7. View Ticket & Execute
+> *"Show me the order ticket."*  
+*(Or slash command: `/trader-broker show`)*  
+Claude displays the ticket. Type **"yes"** to execute against the local Indian Paper Broker!
+
+---
+
+### 📋 Prompt Cheat Sheet
+
+| What you want | What to say to Claude |
+| :--- | :--- |
+| **Get Stop & Target** | *"Calculate stop-loss (ORB midpoint) and 2R target for [TICKER] entering at [PRICE]."* |
+| **Check Market Hours** | *"Is the Indian market open right now? What phase are we in?"* |
+| **Scan NSE Breakouts** | *"Scan liquid NSE stocks for 15-minute Opening Range Breakouts."* |
+| **Test Probabilities** | *"Replay this trade in the Time Machine 10,000 times."* |
+| **Calculate Position Size**| *"How many shares can I buy with a ₹1,000 max loss and 5x MIS leverage?"* |
+| **Check FII/DII Flows** | *"What are today's FII and DII net institutional cash flows?"* |
+| **Show Live Table** | *"Show me my live trading table and active positions."* |
+
+---
+
 ## 📊 Live Indian Trading Tables Dashboard
 
 Launch the real-time visual trading tables dashboard in your terminal:
