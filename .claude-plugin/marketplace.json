@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "day-trader-indian-tables",
+  "description": "Indian Stock Market Day Trading Skill Suite with Live Trading Tables for Claude & Antigravity (NSE/BSE)",
+  "owner": {
+    "name": "Naitik",
+    "url": "https://github.com/naitik99045"
+  },
+  "plugins": [
+    {
+      "name": "day-trader-indian-tables",
+      "description": "Eleven AI skills for Indian equities day trading: scanner, news monitor, IST entry timer, exit planner, 10,000-replay time machine, SEBI risk manager, INR whole-share budget manager, order executor (paper default with Dhan/Zerodha support), live trading tables, alerts, analyst, and FII/DII institutional tracker.",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/naitik99045/day-trader-indian-tables"
+    }
+  ]
+}

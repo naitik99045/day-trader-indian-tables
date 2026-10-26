@@ -1,0 +1,28 @@
+{
+  "name": "day-trader-indian-tables",
+  "description": "11 AI skills for Indian stock market day trading (NSE/BSE): 15m ORB scanner, breaking news monitor, IST entry/exit timers, 10,000-run Monte Carlo time machine, SEBI statutory cost risk manager, whole-share budgeter, paper & Dhan/Zerodha broker executor, live trading tables, price alerts, earnings analyst, and FII/DII institutional flow tracker.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Naitik",
+    "url": "https://github.com/naitik99045"
+  },
+  "homepage": "https://github.com/naitik99045/day-trader-indian-tables",
+  "repository": "https://github.com/naitik99045/day-trader-indian-tables",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-skills",
+    "claude-desktop",
+    "antigravity-skills",
+    "indian-stock-market",
+    "nse",
+    "bse",
+    "nifty-50",
+    "day-trading",
+    "paper-trading",
+    "trading-tables",
+    "fii-dii",
+    "opening-range-breakout"
+  ],
+  "skills": "./"
+}

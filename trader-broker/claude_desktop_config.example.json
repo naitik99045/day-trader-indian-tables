@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "indian-day-trader": {
+      "command": "python",
+      "args": [
+        "C:/Users/hp/Desktop/INDIAN STOCK AI AGENT/mcp_server.py"
+      ],
+      "env": {
+        "TRADER_CONFIG_PATH": "C:/Users/hp/Desktop/INDIAN STOCK AI AGENT/trader/config.json",
+        "DHAN_CLIENT_ID": "YOUR_DHAN_CLIENT_ID_OPTIONAL",
+        "DHAN_ACCESS_TOKEN": "YOUR_DHAN_TOKEN_OPTIONAL",
+        "KITE_API_KEY": "YOUR_ZERODHA_KEY_OPTIONAL",
+        "KITE_ACCESS_TOKEN": "YOUR_ZERODHA_TOKEN_OPTIONAL"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary and local test files
+*.tmp
+tests/fixtures/test_portfolio.json
+temp_day_trader/
+
+# Local sensitive environment overrides
+.env
+.env.local

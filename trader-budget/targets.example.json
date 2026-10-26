@@ -1,0 +1,11 @@
+{
+  "source": "Nifty 50 Top Weights (NSE India), Q3 2026",
+  "as_of": "2026-10-01",
+  "weights": [
+    {"ticker": "RELIANCE.NS", "name": "Reliance Industries Ltd", "weight": 25.0, "pct_of_index": 10.2},
+    {"ticker": "HDFCBANK.NS", "name": "HDFC Bank Ltd", "weight": 25.0, "pct_of_index": 9.8},
+    {"ticker": "ICICIBANK.NS", "name": "ICICI Bank Ltd", "weight": 20.0, "pct_of_index": 7.5},
+    {"ticker": "INFY.NS", "name": "Infosys Ltd", "weight": 15.0, "pct_of_index": 5.9},
+    {"ticker": "TCS.NS", "name": "Tata Consultancy Services Ltd", "weight": 15.0, "pct_of_index": 4.8}
+  ]
+}

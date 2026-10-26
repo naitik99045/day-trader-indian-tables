@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "day-trader-indian-tables": {
+      "command": "python",
+      "args": [
+        "C:/path/to/day-trader-indian-tables/mcp_server.py"
+      ],
+      "env": {
+        "TRADER_CONFIG_PATH": "C:/path/to/day-trader-indian-tables/trader/config.json",
+        "DHAN_CLIENT_ID": "OPTIONAL_DHAN_CLIENT_ID",
+        "DHAN_ACCESS_TOKEN": "OPTIONAL_DHAN_TOKEN",
+        "KITE_API_KEY": "OPTIONAL_ZERODHA_KEY",
+        "KITE_ACCESS_TOKEN": "OPTIONAL_ZERODHA_TOKEN"
+      }
+    }
+  }
+}
