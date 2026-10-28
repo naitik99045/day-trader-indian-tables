@@ -1,5 +1,5 @@
 # Project Execution Roadmap
-**Status:** Active (Phase 6: NIFTY Options Engine Queued)
+**Status:** Active (Phase 7: Live Signal Generator & Real Calls Queued)
 **Instruction for Execution Agent:** Pick the first unchecked `[ ]` task in the current active phase, implement it completely without placeholders, verify it, and mark it `[x]`.
 
 ## Phase 1: Foundation, Config & Scaffolding
@@ -16,7 +16,7 @@
 - [x] **Task 3.3: Indian Equities Time Machine (`trader-timemachine`)**
 - [x] **Task 3.4: Position Sizing & Budget Manager (`trader-budget`)**
 - [x] **Task 3.5: Indian Market News & Analyst (`trader-news` & `trader-analyst`)**
-- [x] **Task 3.6: Smart Money Flow Tracker (`trader-fii-dii` replacing `trader-pelosi`)**
+- [x] **Task 3.6: Smart Money Flow Tracker (`trader-fii-dii`)**
 - [x] **Task 3.7: Indian Market Alerts & IST Clock (`trader-alerts`)**
 
 ## Phase 4: UI Polish, Edge Cases & Interactive States
@@ -26,20 +26,22 @@
 ## Phase 5: Security Audit & Production Readiness
 - [x] **Task 5.1: Defensive Audit & Final Verification**
 
-## Phase 6: NIFTY 50 Options Scalping & Momentum Engine
-- [ ] **Task 6.1: NIFTY Option Strike Selector & Delta/Theta Modeling**
-  - *Action:* Implement `trader-options/strikes.py` to ingest Nifty Spot price (`^NSEI`), determine At-The-Money (ATM) and In-The-Money (ITM) strikes (50-point step intervals), calculate Black-Scholes Greeks (Delta 0.55-0.70, Theta decay/hour), and filter out illiquid/low-delta OTM traps.
-  - *Target Files:* `trader-options/strikes.py`, `trader-options/SKILL.md`
-  - *Done When:* Running `python trader-options/strikes.py --spot 24500` outputs optimal CE & PE strike symbols, premiums, and delta.
-- [ ] **Task 6.2: NIFTY Spot Momentum & PCR/OI Sentiment Engine**
-  - *Action:* Implement `trader-options/signals.py` to track Nifty 50 spot index 3m/5m candles for 15-minute Opening Range Breakouts (ORBs), VWAP cross, and 9/21 EMA trend alignment; cross-validate with Put-Call Ratio (PCR) and Open Interest (OI) support/resistance strike walls.
+## Phase 6: NIFTY 50 Options Greeks Engine
+- [x] **Task 6.1: NIFTY Option Strike Selector & Greeks Engine (`trader-options/greeks.py`)**
+- [x] **Task 6.2: Spot-to-Option Taylor Series Stop-Loss & Target Engine**
+- [x] **Task 6.3: Options Lot Sizing (75 qty) & SEBI 0.1% STT Friction Calculation**
+- [x] **Task 6.4: Claude Desktop MCP Server Integration (`mcp_server.py`) & Tests**
+
+## Phase 7: Autonomous Live Signals & Real-Time Calls
+- [ ] **Task 7.1: Live NIFTY Spot & Option Quote Streamer (`trader-options/streamer.py`)**
+  - *Action:* Implement live quotes fetcher for NIFTY 50 Spot (`^NSEI`) and nearest ATM strikes via Yahoo Finance / NSE public endpoint / DhanHQ free API with offline mock fallback.
+  - *Target Files:* `trader-options/streamer.py`
+  - *Done When:* Running `python trader-options/streamer.py` outputs live spot price, ATM strike quotes, and PCR without external pip packages.
+- [ ] **Task 7.2: Triple-Confluence Signal Generator (`trader-options/signals.py`)**
+  - *Action:* Implement signal detector evaluating: (1) 15m ORB breakout on Spot, (2) VWAP trend confirmation, (3) Put-Call Ratio (PCR > 1.1 for CE, < 0.85 for PE), and (4) Delta sweet-spot filter.
   - *Target Files:* `trader-options/signals.py`
-  - *Done When:* Generates high-confidence directional signals (`BUY_CE` or `BUY_PE`) with spot trigger, index stop, and target levels.
-- [ ] **Task 6.3: Options Lot Sizer & SEBI Cost Engine**
-  - *Action:* Implement `trader-options/risk.py` to size positions strictly in NSE NIFTY contract lot sizes (multiples of 75/65), enforce rupee max loss caps (e.g., ₹1,500 per lot), calculate the revised 0.1% STT on option premium sale, exchange turnover fees, and GST, and enforce a 15-minute momentum decay timeout.
-  - *Target Files:* `trader-options/risk.py`
-  - *Done When:* Outputs sized option ticket with exact premium stop-loss, profit target, and net payoff after statutory taxes.
-- [ ] **Task 6.4: Claude Desktop & Antigravity MCP Integration for Options**
-  - *Action:* Update `mcp_server.py` and `trading_tables.py` to add `nifty_options_signal`, `nifty_options_plan`, and `nifty_options_execute` tools, plus a live NIFTY Options Chain & Watchlist table.
-  - *Target Files:* `mcp_server.py`, `trading_tables.py`, `tests/test_nifty_options.py`
-  - *Done When:* Claude Desktop exposes NIFTY options tools and all unit tests pass 100% offline.
+  - *Done When:* Emits high-probability `BUY_CE` or `BUY_PE` signals with spot trigger, option entry, stop-loss, and target levels.
+- [ ] **Task 7.3: Claude Desktop Real-Time Call MCP Tool (`mcp_server.py`)**
+  - *Action:* Register `nifty_options_get_live_call` in `mcp_server.py` and add unit test coverage in `tests/test_nifty_signals.py`.
+  - *Target Files:* `mcp_server.py`, `tests/test_nifty_signals.py`
+  - *Done When:* Invoking `nifty_options_get_live_call` via MCP returns formatted trade recommendations with exact premiums, stop-losses, and profit targets.
