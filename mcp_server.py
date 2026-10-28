@@ -29,6 +29,7 @@ paper_mod = load("trader-broker", "paper_broker")
 alerts_mod = load("trader-alerts", "alerts")
 fii_mod = load("trader-fii-dii", "tracker")
 analyst_mod = load("trader-analyst", "facts")
+options_mod = load("trader-options", "greeks")
 
 TOOLS_REGISTRY = [
     {
@@ -138,6 +139,51 @@ TOOLS_REGISTRY = [
         "name": "indian_fii_dii_flows",
         "description": "Get daily FII & DII institutional cash flows (in ₹ Crore) and prominent NSE Bulk & Block deals.",
         "inputSchema": {"type": "object"}
+    },
+    {
+        "name": "nifty_options_calculate_greeks",
+        "description": "Calculate theoretical price and Black-Scholes Greeks (Delta, Gamma, Theta daily/hourly, Vega, Omega elasticity, Rho) for any NIFTY strike.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "spot": {"type": "number", "description": "Current Nifty spot price (e.g. 24500)"},
+                "strike": {"type": "number", "description": "Option strike price (e.g. 24500)"},
+                "type": {"type": "string", "enum": ["CE", "PE", "ce", "pe"], "description": "Call (CE) or Put (PE)"},
+                "days_to_expiry": {"type": "number", "default": 2.0, "description": "Days remaining to expiry"},
+                "iv_pct": {"type": "number", "default": 14.0, "description": "Implied Volatility or India VIX in %"}
+            },
+            "required": ["spot", "strike"]
+        }
+    },
+    {
+        "name": "nifty_options_plan_trade",
+        "description": "Map NIFTY Spot index levels (Entry, Technical Stop-Loss, Target) into exact Option Premium values using Delta/Gamma Taylor expansion, with 0.1% STT statutory fee audit and 15m momentum timeout rules.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "spot_entry": {"type": "number", "description": "Nifty Spot entry price"},
+                "spot_sl": {"type": "number", "description": "Nifty Spot stop loss level"},
+                "spot_target": {"type": "number", "description": "Nifty Spot profit target level"},
+                "type": {"type": "string", "enum": ["CE", "PE", "ce", "pe"], "default": "CE"},
+                "days_to_expiry": {"type": "number", "default": 2.0},
+                "iv_pct": {"type": "number", "default": 14.0},
+                "lots": {"type": "integer", "default": 1, "description": "Number of lots (75 qty/lot)"}
+            },
+            "required": ["spot_entry", "spot_sl", "spot_target"]
+        }
+    },
+    {
+        "name": "nifty_options_recommend_strikes",
+        "description": "Find the optimal At-The-Money (ATM) and In-The-Money (ITM) Call & Put strikes for NIFTY matching high Delta (0.55 - 0.70) to avoid OTM time-decay traps.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "spot": {"type": "number", "description": "Current Nifty Spot price"},
+                "days_to_expiry": {"type": "number", "default": 2.0},
+                "iv_pct": {"type": "number", "default": 14.0}
+            },
+            "required": ["spot"]
+        }
     }
 ]
 
@@ -232,6 +278,30 @@ def handle_tool_call(name, args):
             "institutional_flows": fii_mod.get_sample_fii_dii(),
             "bulk_deals": fii_mod.get_sample_bulk_deals()
         }
+        
+    elif name == "nifty_options_calculate_greeks":
+        return options_mod.calculate_option_greeks(
+            args["spot"], args["strike"],
+            args.get("days_to_expiry", 2.0),
+            args.get("iv_pct", 14.0),
+            args.get("type", "CE")
+        )
+        
+    elif name == "nifty_options_plan_trade":
+        return options_mod.plan_nifty_option_trade(
+            args["spot_entry"], args["spot_sl"], args["spot_target"],
+            opt_type=args.get("type", "CE"),
+            days_to_expiry=args.get("days_to_expiry", 2.0),
+            iv_pct=args.get("iv_pct", 14.0),
+            lots=args.get("lots", 1)
+        )
+        
+    elif name == "nifty_options_recommend_strikes":
+        return options_mod.find_optimal_strikes(
+            args["spot"],
+            days_to_expiry=args.get("days_to_expiry", 2.0),
+            iv_pct=args.get("iv_pct", 14.0)
+        )
         
     raise ValueError(f"Unknown tool: {name}")
 

@@ -1,12 +1,12 @@
-# Indian Stock Market Day Trading Skill Suite (`NSE / BSE`)
-### With Live Trading Tables for Claude Desktop, Claude Code & Antigravity
+# Indian Stock & NIFTY Options Day Trading Skill Suite (`NSE / BSE / NIFTY 50`)
+### With Live Trading Tables & Greeks Engine for Claude Desktop, Claude Code & Antigravity
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Market: NSE / BSE](https://img.shields.io/badge/Market-NSE%20%2F%20BSE-blue.svg)](https://www.nseindia.com)
+[![Market: NSE / BSE / NIFTY F&O](https://img.shields.io/badge/Market-NSE%20%2F%20BSE%20%2F%20NIFTY-blue.svg)](https://www.nseindia.com)
 [![Timezone: IST (UTC+5:30)](https://img.shields.io/badge/Timezone-IST%20(UTC%2B5:30)-orange.svg)]()
 [![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-green.svg)]()
 
-11 AI skills for Indian stock market day trading: scan liquid NSE charts, track market-moving news, time entries bar by bar in IST, plan stops with 15:15 IST auto-square-off enforcement, simulate 10,000 session paths before risking ₹1, calculate SEBI statutory friction (STT, GST, Stamp Duty, Brokerage), view live trading tables, and execute orders with 2-step human confirmation.
+12 AI skills for Indian stock market day trading and NIFTY 50 options: scan liquid NSE charts, track market-moving news, time entries bar by bar in IST, plan stops with 15:15 IST auto-square-off enforcement, simulate 10,000 session paths before risking ₹1, calculate SEBI statutory friction (STT, GST, Stamp Duty, Brokerage), calculate Black-Scholes Greeks (Delta, Gamma, Theta, Vega, Omega), map Spot index levels directly to Option premium Stop-Loss and Target via Taylor series, view live trading tables, and execute orders with 2-step human confirmation.
 
 Free, MIT, zero mandatory pip dependencies (standard library Python only).
 
@@ -127,13 +127,53 @@ Claude displays the ticket. Type **"yes"** to execute against the local Indian P
 
 | What you want | What to say to Claude |
 | :--- | :--- |
-| **Get Stop & Target** | *"Calculate stop-loss (ORB midpoint) and 2R target for [TICKER] entering at [PRICE]."* |
+| **Get Stop & Target (Equity)** | *"Calculate stop-loss (ORB midpoint) and 2R target for [TICKER] entering at [PRICE]."* |
+| **Plan NIFTY Options Trade** | *"Nifty spot is 24500, recommend ATM strikes and plan a Call option trade with spot SL at 24460 and target at 24580."* |
+| **Calculate Options Greeks** | *"Calculate Black-Scholes Greeks (Delta, Gamma, Theta, Vega, Omega) for Nifty 24500 Call with 3 days to expiry and IV 13.5%."* |
+| **Recommend Strikes** | *"Spot is 24500, show me recommended Call and Put strikes with delta between 0.55 and 0.70."* |
 | **Check Market Hours** | *"Is the Indian market open right now? What phase are we in?"* |
 | **Scan NSE Breakouts** | *"Scan liquid NSE stocks for 15-minute Opening Range Breakouts."* |
 | **Test Probabilities** | *"Replay this trade in the Time Machine 10,000 times."* |
 | **Calculate Position Size**| *"How many shares can I buy with a ₹1,000 max loss and 5x MIS leverage?"* |
 | **Check FII/DII Flows** | *"What are today's FII and DII net institutional cash flows?"* |
 | **Show Live Table** | *"Show me my live trading table and active positions."* |
+
+---
+
+## ⚡ NIFTY 50 Options Trading & Greeks Engine
+
+Built specifically for high-speed NIFTY 50 index options intraday traders. It combines the rigorous **Black-Scholes-Merton** mathematical framework with retail-tested edge rules gathered from algorithmic traders and quant communities (`r/IndianStreetBets`, Zerodha Varsity).
+
+### 📐 The Quantitative Greeks Engine
+Zero third-party pip dependencies required. Calculates full first-order and second-order Greeks:
+* **Delta ($\Delta$):** Option price sensitivity per ₹1 move in NIFTY index ($\Delta_{\text{call}} = N(d_1)$, $\Delta_{\text{put}} = N(d_1) - 1$).
+* **Gamma ($\Gamma$):** Rate of change of Delta per ₹1 spot change ($\frac{N'(d_1)}{S \sigma \sqrt{T}}$). Critical for capturing second-order explosive breakout moves.
+* **Theta ($\Theta$):** Calendar day decay AND per-hour decay based on the Indian market's 6.25-hour trading day (09:15–15:30 IST):
+  $$\Theta_{\text{hourly}} = \frac{\Theta_{\text{daily}}}{6.25}$$
+* **Vega ($\mathcal{V}$):** Absolute premium change per 1.0% change in India VIX / Implied Volatility ($S \sqrt{T} N'(d_1) \times 0.01$).
+* **Omega ($\Omega$ / Elasticity):** Effective gearing leverage of the option:
+  $$\Omega = \frac{\Delta \cdot S}{V}$$
+  Tells you exact percentage gain in option premium for every 1.0% move in NIFTY 50.
+* **Rho ($\rho$):** Sensitivity to the Reserve Bank of India (RBI) repo rate benchmark ($6.50\%$).
+
+### 🎯 Spot-to-Option Stop-Loss & Target Mapping (Taylor Expansion)
+Retail option buyers fail because they guess arbitrary premium stop-losses. This suite solves that by calculating your Stop-Loss and Target on the **underlying NIFTY Spot index chart** and mathematically projecting it onto the option premium using a second-order Taylor series expansion:
+
+$$\Delta V \approx \left(\Delta \cdot \Delta S\right) + \frac{1}{2}\Gamma (\Delta S)^2$$
+
+* **Target Option Premium:** $V_0 + \left(\Delta S_{\text{target}} \cdot \Delta\right) + \frac{1}{2}\Gamma(\Delta S_{\text{target}})^2$
+* **Stop-Loss Option Premium:** $V_0 - |\Delta S_{\text{stop}}| \cdot \Delta$
+* **Rupee PnL & Risk/Reward:** Projected per lot (75 qty) net of SEBI statutory taxes (0.1% STT on option sell turnover + ₹20 broker fee + GST + exchange turnover fee).
+
+### 🛡️ Retail Edge Rules (From Community Quant Research)
+1. **Delta Sweet Spot ($\Delta = 0.55 - 0.70$):** Avoid cheap deep-OTM lottery tickets ($\Delta < 0.35$) where 93% of retail buyers lose to Theta decay. Strictly buy 1-strike In-The-Money (ITM) or At-The-Money (ATM).
+2. **15-Minute Momentum Decay Guard:** If NIFTY consolidates for more than 15–20 minutes without directional follow-through, exit or trail SL to breakeven before Theta decay destroys capital.
+3. **SEBI Compliance & Expiry:** Native support for 75-lot contract size, weekly/monthly expiry schedules, and mandatory 15:15 IST auto-square-off cutoff.
+
+### 🔌 Dedicated MCP Tools for Claude Desktop:
+- `nifty_options_calculate_greeks`: Computes Call/Put premium, $\Delta, \Gamma, \Theta, \mathcal{V}, \Omega, \rho$.
+- `nifty_options_plan_trade`: Complete trade blueprint mapping spot entry, spot SL, and spot Target to option premium SL/Target, rupee PnL, lot size, and statutory friction.
+- `nifty_options_recommend_strikes`: Suggests optimal strikes around ATM filtered by delta sweet-spot.
 
 ---
 
@@ -155,10 +195,11 @@ python trading_tables.py
 
 ---
 
-## 🛠️ The 11 Skills
+## 🛠️ The 12 Skills
 
 | Command / Skill | Job | Description |
 | :--- | :--- | :--- |
+| **`/trader-options`** | NIFTY Options Greeks | Computes Black-Scholes Greeks (Delta, Gamma, Theta, Vega, Omega), maps Spot SL/Target to option premiums via Taylor series, sizes lots (75 qty), and audits SEBI 0.1% STT. |
 | **`/trader-scanner`** | Chart Scanner | Scans liquid NSE equities for 15-minute Opening Range Breakouts (ORBs) between `09:15` and `09:30` AM IST, plus pre-market daily setups. |
 | **`/trader-news`** | News Monitor | Tracks corporate announcements, quarterly results, SEBI regulatory notices, and market-moving headlines. |
 | **`/trader-entry`** | Entry Timer | Monitors 5-minute candles in IST and signals the exact moment a stock closes above its range high. |
