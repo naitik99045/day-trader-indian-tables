@@ -1,61 +1,63 @@
 # Project State & Context
-**Last Updated:** 2026-10-28 21:50:00 IST
+**Last Updated:** 2026-11-03 10:55:00 IST
 
 ## 1. Project Overview
-The **Indian Stock Market Day Trading Skill Suite (`day-trader-indian-tables`)** is a production-grade, MIT-licensed open-source quant suite designed for **NSE / BSE Cash Equities** and **NIFTY 50 Intraday Options Trading**. It operates natively inside Claude Desktop (via MCP), Claude Code, Google DeepMind Antigravity, and terminal CLI.
-
-The suite solves retail options failure through deterministic quantitative models (Black-Scholes-Merton Greeks, Taylor Series Spot-to-Option SL/Target mapping, 15-minute momentum decay rules, and official SEBI 0.1% STT and 75-lot sizing).
+The **Indian Stock Market Day Trading Skill Suite (`day-trader-indian-tables`)** is explicitly positioned as a **Pure Quantitative Trade Analyst & Copilot** for manual retail traders. 
+The system does **NOT** execute auto-trades or place orders autonomously. Instead, it provides precision mathematical analysis for **NIFTY 50 Intraday Options (CE & PE)**:
+- Exact Spot-to-Option Stop-Loss mapping.
+- Gamma-boosted Target setting.
+- Definite Time-in-Trade limits (15–20 minutes momentum window) and rupee-per-hour Theta decay tracking.
+- Pre-trade confluence checklist (Spot ORB, VWAP, India VIX, PCR, OI Strike Walls).
+- SEBI statutory friction audit (0.1% STT, GST, Exchange charges, Brokerage).
 
 ---
 
-## 2. Brainstormed Analysis: Training vs. Agent Tool-Grounding & "Real Calls"
+## 2. Brainstormed Analysis: The Precision Options Analyst Architecture
 
-### A. Do you need to "Train" the agent first?
-* **Answer:** **No model training or fine-tuning is needed.**
-* **Why Traditional Model Training Fails in Markets:**
-  - Training an LLM or ML model on historical stock charts leads to overfitting and hallucination. Market regimes, IV dynamics, and RBI interest rate policies change continuously.
-  - LLMs trained directly on prices hallucinate numbers and calculate math poorly.
-* **How This Agent Works (Deterministic Tool-Grounding via MCP):**
-  - Claude Desktop / Antigravity acts as the reasoning engine and natural language interface.
-  - When you prompt Claude or evaluate a trade, Claude invokes the Python quantitative engine (`trader-options/greeks.py`) via MCP tools.
-  - All Greeks ($\Delta, \Gamma, \Theta, \mathcal{V}, \Omega, \rho$), Taylor-series option SL/Target levels, and SEBI tax friction are calculated with zero approximation errors.
+### A. Role Definition: 100% Analyst Copilot (No Auto-Trading)
+The user retains full manual execution control through their broker terminal (Zerodha Kite, Dhan, Groww, AngelOne). Claude Desktop acts as the quantitative brain:
+1. **Inputs from Trader:** Trader observes NIFTY 50 Spot index chart and feeds 3 numbers into Claude:
+   - Spot Entry (e.g. 24,500)
+   - Technical Spot Stop-Loss (e.g. 24,460)
+   - Technical Spot Target (e.g. 24,580)
+   - Direction (CE or PE)
+2. **Analysis by Claude (via MCP Tool `nifty_options_plan_trade`):**
+   - Strips away guesswork using Black-Scholes-Merton and second-order Taylor expansion.
+   - Outputs an exact trade blueprint card.
 
-### B. Can it give you "Real Calls" in Claude Desktop?
-* **Current Capability (Interactive Trade Blueprints):**
-  - Available right now! When you provide NIFTY Spot levels (e.g., entry, support, target), Claude computes the exact strike, option premium entry, Stop-Loss premium, Target premium, rupee risk, and net payoff.
-* **Next Evolutionary Step (Autonomous Real-Time Calls):**
-  - To generate live, unprompted trading calls directly inside Claude Desktop or terminal (e.g., *"BUY NIFTY 24500 CE at ₹142 | SL ₹121 | Target ₹187"*), the system requires:
-    1. **Live NIFTY Spot & Option Chain Feed:** Real-time polling or WebSocket stream (NSE India / DhanHQ free API / Yahoo Finance).
-    2. **Triple-Confluence Signal Generator (`trader-options/signals.py`):** Evaluating 15-minute Opening Range Breakout (ORB) + VWAP + 9/21 EMA + PCR (Put-Call Ratio) filter.
-    3. **Live Alerting & Ticket Delivery:** Pushing instantaneous call alerts to Claude Desktop and the visual Trading Table.
+### B. The 5 Confluence Checks Before Entering ("What All to See"):
+1. **Spot Chart Structure:** 15m Opening Range Breakout (09:15–09:30 candle high/low breached on completed 5m bar).
+2. **VWAP & Trend Confirmation:** Price trading above VWAP for Call (CE); below VWAP for Put (PE).
+3. **PCR (Put-Call Ratio):** PCR > 1.10 indicates bullish put-writing support; PCR < 0.85 indicates bearish call-writing resistance.
+4. **India VIX (Implied Volatility):** Stable or rising VIX supports option buyers; plunging VIX causes IV crush.
+5. **Open Interest (OI) Walls:** Ensure entry is not directly into a massive Call OI strike (e.g., round 24,500/24,600 numbers).
 
-### C. How the System Delivers Real-World Accuracy:
-1. **Delta Sweet-Spot ($\Delta = 0.55 - 0.70$):** Avoids cheap OTM lottery traps ($\Delta < 0.35$) where 93% of retail traders lose to time decay.
-2. **Taylor Series Spot-to-Option Mapping:** Stop-Loss and Target are anchored to the underlying NIFTY Spot index chart, eliminating fake-outs caused by option premium bid-ask spreads.
-3. **15-Minute Momentum Decay Guard:** Warns if the index consolidates for >15 minutes after breakout, forcing a breakeven exit before Theta decay destroys capital.
-4. **SEBI Friction Pre-Audit:** Accounts for 0.1% STT on option premium sales, exchange charges, GST, and broker commissions before entering any trade.
+### C. Precision Mathematical Formulations:
+1. **Target Premium Formulation (Delta + Gamma Acceleration):**
+   $$V_{\text{target}} = V_0 + (\Delta S \cdot \Delta) + \frac{1}{2}\Gamma(\Delta S)^2$$
+2. **Stop-Loss Premium Formulation (Linear Delta Protection):**
+   $$V_{\text{sl}} = V_0 - |\Delta S_{\text{risk}}| \cdot \Delta$$
+3. **Time-in-Trade Decay Limit ("For How Much Time"):**
+   - Standard intraday option buying window: **15 to 20 minutes (3 to 4 five-minute candles)**.
+   - Hourly Decay Rate: $\Theta_{\text{hourly}} = \frac{\Theta_{\text{daily}} / 365}{6.25 \text{ hrs}}$.
+   - If NIFTY consolidates for >15 mins without hitting Target, decay accelerates $\rightarrow$ Trail SL to Breakeven or Exit Flat.
+   - Hard Cutoff: **15:15 IST** (mandatory exit to avoid broker MIS penalties).
 
 ---
 
 ## 3. Current Progress
-- [x] **Phase 1–5:** 11 Cash Equity trading skills built, verified, and passing 100% tests.
-- [x] **Live Trading Tables Dashboard (`trading_tables.py`)** operational with terminal UI and CSV export.
-- [x] **Phase 6: NIFTY 50 Options Greeks Engine (`trader-options/greeks.py`)**:
-  - Black-Scholes pricing, $\Delta, \Gamma, \Theta, \mathcal{V}, \Omega, \rho$.
-  - Spot-to-Option Taylor expansion Stop-Loss and Target mapping.
-  - Contract lot sizing (75 qty) and SEBI 0.1% STT accounting.
-- [x] **MCP Integration:** Registered `nifty_options_calculate_greeks`, `nifty_options_plan_trade`, and `nifty_options_recommend_strikes` in `mcp_server.py`.
-- [x] **Testing:** 17 unit tests passing (11 equity + 6 options) 100% offline.
-- [x] **Repository:** Committed and pushed to GitHub (`https://github.com/naitik99045/day-trader-indian-tables.git`).
+- [x] Phase 1–5: Cash Equities skills and live trading tables complete.
+- [x] Phase 6: NIFTY 50 Options Greeks Engine (`trader-options/greeks.py`) complete.
+- [x] MCP Server (`mcp_server.py`) registered with 3 options tools.
+- [x] All 17 unit tests passing 100% offline.
+- [x] Repository pushed and synced to GitHub (`https://github.com/naitik99045/day-trader-indian-tables.git`).
 
 ---
 
-## 4. Pending Work: Phase 7 (Autonomous Live Signals & Real Calls)
-1. **Task 7.1: Live NIFTY Spot & Option Chain Streamer (`trader-options/streamer.py`)**:
-   - Ingests live NIFTY 50 Spot (`^NSEI`) quotes and real-time ATM option chain data via Yahoo Finance / NSE / DhanHQ API.
-2. **Task 7.2: Triple-Confluence Signal Engine (`trader-options/signals.py`)**:
-   - Detects 15m ORB breakouts, VWAP trend confirmation, and PCR sentiment triggers.
-   - Generates actionable `BUY_CE` / `BUY_PE` signal events.
-3. **Task 7.3: Claude Desktop Live Signal Tool & Visual Table Sync**:
-   - Exposes `nifty_options_live_signal` in MCP server.
-   - Displays real-time signal status in `trading_tables.py`.
+## 4. Pending Work: Phase 7 (Interactive Analysis Card & Confluence Enhancer)
+1. **Task 7.1: Visual Confluence Checklist Generator (`trader-options/checklist.py`)**:
+   - Generates a 5-point go/no-go visual table (Spot Breakout, VWAP, PCR, India VIX, Time-of-Day).
+2. **Task 7.2: Time-in-Trade Timer & Decay Card in MCP Tool**:
+   - Enhances `nifty_options_plan_trade` output with an explicit "Time-in-Trade Countdown" and hourly decay cost breakdown.
+3. **Task 7.3: Claude Desktop "Analyze My Trade" Prompt Preset**:
+   - Documented and tested standardized prompt templates for 1-click trade auditing.

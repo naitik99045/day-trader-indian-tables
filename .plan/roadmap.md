@@ -1,5 +1,5 @@
 # Project Execution Roadmap
-**Status:** Active (Phase 7: Live Signal Generator & Real Calls Queued)
+**Status:** Active (Phase 7: Precision Options Trade Analysis & Confluence Copilot Queued)
 **Instruction for Execution Agent:** Pick the first unchecked `[ ]` task in the current active phase, implement it completely without placeholders, verify it, and mark it `[x]`.
 
 ## Phase 1: Foundation, Config & Scaffolding
@@ -26,22 +26,22 @@
 ## Phase 5: Security Audit & Production Readiness
 - [x] **Task 5.1: Defensive Audit & Final Verification**
 
-## Phase 6: NIFTY 50 Options Greeks Engine
+## Phase 6: NIFTY 50 Options Greeks & Taylor Expansion Engine
 - [x] **Task 6.1: NIFTY Option Strike Selector & Greeks Engine (`trader-options/greeks.py`)**
 - [x] **Task 6.2: Spot-to-Option Taylor Series Stop-Loss & Target Engine**
 - [x] **Task 6.3: Options Lot Sizing (75 qty) & SEBI 0.1% STT Friction Calculation**
 - [x] **Task 6.4: Claude Desktop MCP Server Integration (`mcp_server.py`) & Tests**
 
-## Phase 7: Autonomous Live Signals & Real-Time Calls
-- [ ] **Task 7.1: Live NIFTY Spot & Option Quote Streamer (`trader-options/streamer.py`)**
-  - *Action:* Implement live quotes fetcher for NIFTY 50 Spot (`^NSEI`) and nearest ATM strikes via Yahoo Finance / NSE public endpoint / DhanHQ free API with offline mock fallback.
-  - *Target Files:* `trader-options/streamer.py`
-  - *Done When:* Running `python trader-options/streamer.py` outputs live spot price, ATM strike quotes, and PCR without external pip packages.
-- [ ] **Task 7.2: Triple-Confluence Signal Generator (`trader-options/signals.py`)**
-  - *Action:* Implement signal detector evaluating: (1) 15m ORB breakout on Spot, (2) VWAP trend confirmation, (3) Put-Call Ratio (PCR > 1.1 for CE, < 0.85 for PE), and (4) Delta sweet-spot filter.
-  - *Target Files:* `trader-options/signals.py`
-  - *Done When:* Emits high-probability `BUY_CE` or `BUY_PE` signals with spot trigger, option entry, stop-loss, and target levels.
-- [ ] **Task 7.3: Claude Desktop Real-Time Call MCP Tool (`mcp_server.py`)**
-  - *Action:* Register `nifty_options_get_live_call` in `mcp_server.py` and add unit test coverage in `tests/test_nifty_signals.py`.
-  - *Target Files:* `mcp_server.py`, `tests/test_nifty_signals.py`
-  - *Done When:* Invoking `nifty_options_get_live_call` via MCP returns formatted trade recommendations with exact premiums, stop-losses, and profit targets.
+## Phase 7: Quantitative Copilot & Precision Trade Analysis Card
+- [ ] **Task 7.1: Pre-Trade Confluence Checklist Engine (`trader-options/checklist.py`)**
+  - *Action:* Implement a checklist evaluator checking Spot 15m ORB, VWAP slope, PCR sentiment, and India VIX regime.
+  - *Target Files:* `trader-options/checklist.py`
+  - *Done When:* Running checklist gives a numerical score (0 to 100%) and clear Go / No-Go decision.
+- [ ] **Task 7.2: Holding Duration & Time Decay Alert Generator**
+  - *Action:* Enhance `plan_nifty_option_trade` in `trader-options/greeks.py` to output a precise 5m candle countdown (Candle 1-3: Ride momentum, Candle 4: 20-min breakeven trigger, 15:15 IST hard square-off).
+  - *Target Files:* `trader-options/greeks.py`, `tests/test_nifty_options.py`
+  - *Done When:* Output explicitly displays the time limit, decay per 5-minute bar, and trailing rule.
+- [ ] **Task 7.3: Claude Desktop Analysis Prompt Templates & Documentation**
+  - *Action:* Update `README.md` and `trader-options/SKILL.md` with copy-paste prompts designed purely for trade planning, stop-loss calculation, and target analysis without automated order execution.
+  - *Target Files:* `README.md`, `trader-options/SKILL.md`
+  - *Done When:* Claude Desktop returns structured, precision trade cards upon simple prompts.
